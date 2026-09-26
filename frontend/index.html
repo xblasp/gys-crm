@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GyS CRM — Taller de Marinera Garbo & Salero Semillero de Campeones</title>
+  <meta name="description" content="Sistema CRM Integral para gestión de alumnos, clases, mensualidades, pagos y seguimiento en Los Olivos y Comas.">
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ======================================================================
+       FAVICONS & APP ICONS (Marca e Identidad Visual)
+       - favicon.png (32x32): Favicon estándar para navegadores modernos
+       - favicon.ico: Soporte retrocompatible para navegadores heredados
+       - apple-touch-icon.png (180x180): Icono de alta resolución para iOS/Android Web App
+       ====================================================================== -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon.png">
+  <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="theme-light">
+  <div class="app-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="appSidebar">
+      
+      <!-- ==================================================================
+           SIDEBAR BRAND HEADER (Identidad Institucional de la Academia)
+           - brand-badge: Contenedor con fondo blanco de alto contraste y aro dorado
+           - brand-logo-img: Monograma "GS" oficial recortado con soporte retina
+           - brand-text: Título principal y subtítulo de la escuela de marinera
+           ================================================================== -->
+      <div class="sidebar-brand">
+        <div class="brand-badge">
+          <img src="/static/assets/logo-badge.png" alt="Logo Garbo & Salero" class="brand-logo-img">
+        </div>
+        <div class="brand-text">
+          <h2>Garbo & Salero</h2>
+          <span class="brand-subtitle">Semillero de Campeones</span>
+        </div>
+      </div>
+
+      <!-- Sede & Active User Context -->
+      <div class="branch-selector-card">
+        <label for="currentBranchSelect"><i class="fa-solid fa-location-dot"></i> Sede Operativa:</label>
+        <select id="currentBranchSelect" class="form-select branch-select">
+          <option value="Todas">🏢 Todas las Sedes</option>
+          <option value="Los Olivos" selected>📍 Sede Los Olivos</option>
+          <option value="Comas">📍 Sede Comas</option>
+        </select>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-link active" data-view="dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard Mensual</span>
+        </a>
+        <a href="#clients" class="nav-link" data-view="clients">
+          <i class="fa-solid fa-users"></i>
+          <span>Alumnos & Clientes</span>
+          <span class="badge" id="sidebarClientsCount">0</span>
+        </a>
+        <a href="#interactions" class="nav-link" data-view="interactions">
+          <i class="fa-solid fa-comments"></i>
+          <span>Seguimiento CRM & Leads</span>
+          <span class="badge badge-warning" id="sidebarRemindersCount">0</span>
+        </a>
+        <a href="#classes" class="nav-link" data-view="classes">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Clases & Horarios</span>
+        </a>
+        <a href="#memberships" class="nav-link" data-view="memberships">
+          <i class="fa-solid fa-id-card"></i>
+          <span>Membresías & Ciclos</span>
+          <span class="badge badge-danger" id="sidebarExpiringCount">0</span>
+        </a>
+        <a href="#payments" class="nav-link" data-view="payments">
+          <i class="fa-solid fa-money-bill-wave"></i>
+          <span>Pagos & Caja</span>
+        </a>
+        <a href="#promotions" class="nav-link" data-view="promotions">
+          <i class="fa-solid fa-tags"></i>
+          <span>Promociones & Descuentos</span>
+        </a>
+        <a href="#web-simulator" class="nav-link" data-view="web-simulator">
+          <i class="fa-solid fa-globe"></i>
+          <span>Portal Web / Captura Leads</span>
+        </a>
+        <a href="#backup" class="nav-link" data-view="backup">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Base de Datos & Backup</span>
+        </a>
+      </nav>
+
+      <!-- User Info & Role Switcher -->
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
+          <div class="user-details">
+            <span class="user-name" id="currentUserName">Directora General</span>
+            <span class="user-role" id="currentUserRole">Admin General</span>
+          </div>
+        </div>
+        <button id="btnRoleSwitch" class="btn-role-switch" title="Cambiar Rol de Simulación">
+          <i class="fa-solid fa-repeat"></i> Cambiar Rol
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      
+      <!-- Top Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="btn-menu-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+          <div class="header-titles">
+            <h1 id="pageTitle">Dashboard Gerencial Mensual</h1>
+            <span class="header-breadcrumb" id="pageSubtitle">Resumen de ingresos, captación y vencimientos</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <!-- Global Quick Actions -->
+          <button class="btn btn-secondary btn-sm" id="btnQuickLead">
+            <i class="fa-solid fa-headset"></i> Registrar Interacción
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnQuickPayment">
+            <i class="fa-solid fa-cash-register"></i> Registrar Pago
+          </button>
+          <button class="btn btn-primary btn-sm" id="btnQuickClient">
+            <i class="fa-solid fa-user-plus"></i> Nuevo Alumno
+          </button>
+        </div>
+      </header>
+
+      <!-- Alert Banner Container for 5-Day Expirations & Reminders -->
+      <div id="urgentAlertsBanner" class="alerts-banner-container"></div>
+
+      <!-- Main Views Container -->
+      <div class="content-container">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="app-view active">
+          <!-- Filter toolbar -->
+          <div class="view-toolbar">
+            <div class="toolbar-group">
+              <label for="dashboardPeriodMonth"><i class="fa-solid fa-calendar"></i> Periodo:</label>
+              <input type="month" id="dashboardPeriodMonth" class="form-control form-control-sm">
+            </div>
+            <button id="btnRefreshDashboard" class="btn btn-light btn-sm"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+          </div>
+
+          <!-- KPI Cards Grid -->
+          <div class="kpi-grid">
+            <div class="kpi-card kpi-revenue">
+              <div class="kpi-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+              <div class="kpi-info">
+                <span class="kpi-label">Ingresos del Mes</span>
+                <h3 class="kpi-value" id="kpiTotalRevenue">S/ 0.00</h3>
+                <span class="kpi-subtext" id="kpiRevenueSub">Recaudación neta en el periodo</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-active">
+              <div class="kpi-icon"><i class="fa-solid fa-user-check"></i></div>
+              <div class="kpi-info">
+                <span class="kpi-label">Alumnos Activos</span>
+                <h3 class="kpi-value" id="kpiActiveClients">0</h3>
+                <span class="kpi-subtext">Matriculados vigentes</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-new">
+              <div class="kpi-icon"><i class="fa-solid fa-user-plus"></i></div>
+              <div class="kpi-info">
+                <span class="kpi-label">Nuevos Inscritos</span>
+                <h3 class="kpi-value" id="kpiNewClients">0</h3>
+                <span class="kpi-subtext">Ingresaron este mes</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-retired">
+              <div class="kpi-icon"><i class="fa-solid fa-user-minus"></i></div>
+              <div class="kpi-info">
+                <span class="kpi-label">Alumnos Retirados</span>
+                <h3 class="kpi-value" id="kpiRetiredClients">0</h3>
+                <span class="kpi-subtext">Bajas registradas este mes</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 7.2, 7.5, 7.6 Analytics Charts -->
+          <div class="dashboard-charts-grid">
+            
+            <!-- 3-Month Sales Trend Chart (Section 7.2) -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-chart-line"></i> Comparativa Trimestral de Ventas (S/)</h3>
+                <span class="card-subtitle">Evolución de los últimos 3 meses</span>
+              </div>
+              <div class="card-body chart-container">
+                <canvas id="quarterlySalesChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Revenue by Modality Breakdown (Section 7.5) -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-chart-pie"></i> Ingresos por Modalidad</h3>
+                <span class="card-subtitle">Grupales, Libres y Particulares</span>
+              </div>
+              <div class="card-body chart-container">
+                <canvas id="modalityRevenueChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Acquisition Source Distribution (Section 7.6) -->
+            <div class="card chart-card full-width">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-bullhorn"></i> Origen de Clientes & Prospectos</h3>
+                <span class="card-subtitle">WhatsApp, Instagram, TikTok, Presencial, Referidos y Web</span>
+              </div>
+              <div class="card-body">
+                <div class="acquisition-pills" id="acquisitionPillsContainer"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Automated Action Cards (Section 7.7) -->
+          <div class="dashboard-actions-grid">
+            <!-- 5-Day Expirations Alert Widget -->
+            <div class="card alert-widget-card">
+              <div class="card-header header-warning">
+                <h3><i class="fa-solid fa-bell"></i> Membresías por Vencer (&le; 5 días)</h3>
+                <span class="badge badge-warning" id="dashExpiringCountBadge">0 por vencer</span>
+              </div>
+              <div class="card-body table-responsive">
+                <table class="table table-compact" id="dashExpiringTable">
+                  <thead>
+                    <tr>
+                      <th>Alumno</th>
+                      <th>Sede</th>
+                      <th>Plan</th>
+                      <th>Vence</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="5" class="text-center text-muted">Cargando membresías por vencer...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Follow-up Reminders Widget -->
+            <div class="card alert-widget-card">
+              <div class="card-header header-primary">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Recordatorios de Contacto</h3>
+                <span class="badge badge-primary" id="dashRemindersCountBadge">0 pendientes</span>
+              </div>
+              <div class="card-body table-responsive">
+                <table class="table table-compact" id="dashRemindersTable">
+                  <thead>
+                    <tr>
+                      <th>Contacto</th>
+                      <th>Canal</th>
+                      <th>Motivo</th>
+                      <th>Resultado</th>
+                      <th>Atendió</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="5" class="text-center text-muted">No hay recordatorios pendientes.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. CLIENTS & STUDENTS VIEW -->
+        <section id="view-clients" class="app-view">
+          <div class="view-toolbar flex-between">
+            <div class="toolbar-filters">
+              <div class="input-icon-wrapper search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="clientSearchInput" class="form-control" placeholder="Buscar por nombre, DNI, teléfono, apoderado...">
+              </div>
+              <select id="clientStatusFilter" class="form-select">
+                <option value="">Todos los Estados</option>
+                <option value="interested">Interesados (Prospectos)</option>
+                <option value="active">Activos (Alumnos)</option>
+                <option value="retired">Retirados</option>
+              </select>
+              <select id="clientMinorFilter" class="form-select">
+                <option value="">Todos (Adultos y Menores)</option>
+                <option value="true">Solo Menores de Edad</option>
+                <option value="false">Solo Mayores de Edad</option>
+              </select>
+            </div>
+            <div class="toolbar-actions flex-gap">
+              <button class="btn btn-outline" id="btnExportClientsCsvTop" title="Descargar lista de alumnos a Excel (CSV)">
+                <i class="fa-solid fa-file-excel"></i> Exportar CSV
+              </button>
+              <button class="btn btn-outline" id="btnImportClientsCsvTop" title="Importar lista de alumnos existentes desde Excel/CSV">
+                <i class="fa-solid fa-file-import"></i> Importar CSV
+              </button>
+              <button class="btn btn-primary" id="btnOpenNewClientModal">
+                <i class="fa-solid fa-plus"></i> Registrar Alumno
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table table-hover" id="clientsTable">
+                <thead>
+                  <tr>
+                    <th>Alumno / Cliente</th>
+                    <th>DNI / Edad</th>
+                    <th>Sede</th>
+                    <th>Contacto Directo</th>
+                    <th>Apoderado (75% Menores)</th>
+                    <th>Origen</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                  <tr><td colspan="8" class="text-center py-4">Cargando lista de alumnos...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. INTERACTIONS & CRM FOLLOW-UP VIEW -->
+        <section id="view-interactions" class="app-view">
+          <div class="view-toolbar flex-between">
+            <div class="toolbar-filters">
+              <select id="interactionChannelFilter" class="form-select">
+                <option value="">Todos los Canales</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="presencial">Presencial / Visita</option>
+                <option value="llamada">Llamada</option>
+                <option value="tiktok">Tik Tok</option>
+                <option value="instagram">Instagram</option>
+                <option value="web">Web</option>
+              </select>
+              <select id="interactionResultFilter" class="form-select">
+                <option value="">Todos los Resultados</option>
+                <option value="pidio_informacion">Pidió información</option>
+                <option value="vino_a_probarse">Vino a clase prueba</option>
+                <option value="se_inscribio">Se inscribió</option>
+                <option value="lo_pensara">Lo pensará</option>
+                <option value="no_respondio">No respondió</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btnOpenNewInteractionModal">
+              <i class="fa-solid fa-headset"></i> Nueva Interacción
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table table-hover" id="interactionsTable">
+                <thead>
+                  <tr>
+                    <th>Fecha & Hora</th>
+                    <th>Cliente / Prospecto</th>
+                    <th>Canal</th>
+                    <th>Motivo de Contacto</th>
+                    <th>Resumen Conversación</th>
+                    <th>Resultado</th>
+                    <th>Motivo No Inscripción</th>
+                    <th>Atendió</th>
+                    <th>Seguimiento</th>
+                  </tr>
+                </thead>
+                <tbody id="interactionsTableBody">
+                  <tr><td colspan="9" class="text-center py-4">Cargando interacciones...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. CLASSES & SCHEDULE VIEW -->
+        <section id="view-classes" class="app-view">
+          <div class="view-toolbar flex-between">
+            <div class="toolbar-filters">
+              <select id="classTypeFilter" class="form-select">
+                <option value="">Todas las Modalidades</option>
+                <option value="group">Clases Grupales (8 al mes)</option>
+                <option value="free">Clases Libres</option>
+                <option value="private">Clases Particulares</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btnOpenNewClassModal">
+              <i class="fa-solid fa-plus"></i> Programar Clase
+            </button>
+          </div>
+
+          <div class="classes-grid" id="classesCardsGrid">
+            <!-- Dynamically populated class cards with rosters -->
+          </div>
+        </section>
+
+        <!-- 5. MEMBERSHIPS & CYCLES VIEW -->
+        <section id="view-memberships" class="app-view">
+          <div class="view-toolbar flex-between">
+            <div class="toolbar-filters">
+              <input type="month" id="membershipMonthFilter" class="form-control form-control-sm">
+              <select id="membershipStatusFilter" class="form-select">
+                <option value="">Todos los Estados</option>
+                <option value="active">Activas</option>
+                <option value="expiring_soon">Por Vencer (&le; 5 días)</option>
+                <option value="expired">Vencidas</option>
+              </select>
+              <select id="membershipPaymentStatusFilter" class="form-select">
+                <option value="">Estado de Pago</option>
+                <option value="paid">Pagado</option>
+                <option value="pending">Pendiente de Pago</option>
+              </select>
+            <div class="toolbar-actions flex-gap">
+              <button class="btn btn-outline" id="btnSyncMonthlyCycles" title="Sincronizar y generar cuotas mensuales de todos los alumnos activos">
+                <i class="fa-solid fa-arrows-rotate"></i> Sincronizar Cuotas del Mes
+              </button>
+              <button class="btn btn-primary" id="btnOpenNewMembershipModal">
+                <i class="fa-solid fa-id-card"></i> Asignar Plan
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table table-hover" id="membershipsTable">
+                <thead>
+                  <tr>
+                    <th>Alumno</th>
+                    <th>Sede</th>
+                    <th>Plan / Modalidad</th>
+                    <th>Mes Periodo</th>
+                    <th>Vigencia</th>
+                    <th>Clases Asistidas</th>
+                    <th>Monto Final (S/)</th>
+                    <th>Pago</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="membershipsTableBody">
+                  <tr><td colspan="10" class="text-center py-4">Cargando membresías...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. PAYMENTS & CASHFLOW VIEW -->
+        <section id="view-payments" class="app-view">
+          <div class="view-toolbar flex-between">
+            <div class="toolbar-filters">
+              <input type="month" id="paymentMonthFilter" class="form-control form-control-sm">
+              <select id="paymentMethodFilter" class="form-select">
+                <option value="">Todos los Métodos</option>
+                <option value="yape">Yape</option>
+                <option value="plin">Plin</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="efectivo">Efectivo</option>
+              </select>
+              <select id="paymentStatusFilter" class="form-select">
+                <option value="">Todos los Estados</option>
+                <option value="completed">Completados</option>
+                <option value="cancelled">Anulados / Devueltos</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btnOpenNewPaymentModal">
+              <i class="fa-solid fa-receipt"></i> Registrar Cobro
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-body table-responsive">
+              <table class="table table-hover" id="paymentsTable">
+                <thead>
+                  <tr>
+                    <th>Fecha & Hora</th>
+                    <th>Alumno</th>
+                    <th>Concepto & Turno</th>
+                    <th>Periodo</th>
+                    <th>Método</th>
+                    <th>Monto (S/)</th>
+                    <th>Sede</th>
+                    <th>Registrado Por</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="paymentsTableBody">
+                  <tr><td colspan="10" class="text-center py-4">Cargando pagos...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. PROMOTIONS & DISCOUNTS VIEW -->
+        <section id="view-promotions" class="app-view">
+          <div class="view-toolbar flex-between">
+            <div>
+              <h3>Catálogo de Promociones & Descuentos Vigentes</h3>
+              <span class="text-muted">Descuento de S/ 20 por recomendación, exoneración de matrícula, etc.</span>
+            </div>
+            <button class="btn btn-primary" id="btnOpenNewPromoModal">
+              <i class="fa-solid fa-plus"></i> Crear Promoción
+            </button>
+          </div>
+
+          <div class="promotions-grid" id="promotionsCardsGrid">
+            <!-- Promo cards -->
+          </div>
+        </section>
+
+        <!-- 8. WEB SIMULATOR VIEW (Section 9) -->
+        <section id="view-web-simulator" class="app-view">
+          <div class="web-simulator-wrapper">
+            <div class="card simulator-card">
+              <div class="card-header bg-gradient">
+                <div class="browser-dots"><span></span><span></span><span></span></div>
+                <h3><i class="fa-solid fa-globe"></i> Simulador: Portal Web Taller de Marinera</h3>
+                <span class="card-subtitle">Formulario de captura para futuros prospectos web (Sección 9.1 & 9.2)</span>
+              </div>
+              <div class="card-body">
+                <form id="publicWebLeadForm" class="web-lead-form">
+                  <div class="form-row">
+                    <div class="form-group col-6">
+                      <label>Nombres del Interesado *</label>
+                      <input type="text" id="webFirstName" class="form-control" required placeholder="Ej: Camila">
+                    </div>
+                    <div class="form-group col-6">
+                      <label>Apellidos *</label>
+                      <input type="text" id="webLastName" class="form-control" required placeholder="Ej: Flores Quispe">
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group col-6">
+                      <label>WhatsApp / Teléfono *</label>
+                      <input type="tel" id="webWhatsapp" class="form-control" required placeholder="+51 987654321">
+                    </div>
+                    <div class="form-group col-6">
+                      <label>Correo Electrónico</label>
+                      <input type="email" id="webEmail" class="form-control" placeholder="correo@ejemplo.com">
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group col-6">
+                      <label>Sede de Preferencia *</label>
+                      <select id="webPreferredBranch" class="form-select" required>
+                        <option value="Los Olivos">Sede Los Olivos (Av. Antúnez de Mayolo)</option>
+                        <option value="Comas">Sede Comas (Av. Universitaria)</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label>Interés *</label>
+                      <select id="webClassInterest" class="form-select" required>
+                        <option value="grupal">Clases Grupales (Mensualidad 8 clases)</option>
+                        <option value="prueba">Clase de Prueba Demostrativa</option>
+                        <option value="particular">Clases Particulares / Parejas Concurso</option>
+                        <option value="libre">Clase Libre Suelta</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>¿Es menor de edad? (75% de alumnos)</label>
+                    <div class="checkbox-wrapper">
+                      <input type="checkbox" id="webIsMinor">
+                      <span>Sí, registrar datos del Padre/Madre/Apoderado</span>
+                    </div>
+                  </div>
+
+                  <div id="webGuardianFields" class="guardian-box hidden">
+                    <div class="form-row">
+                      <div class="form-group col-6">
+                        <label>Nombre del Apoderado</label>
+                        <input type="text" id="webGuardianName" class="form-control" placeholder="Ej: Rosa Quispe">
+                      </div>
+                      <div class="form-group col-6">
+                        <label>WhatsApp del Apoderado</label>
+                        <input type="tel" id="webGuardianPhone" class="form-control" placeholder="+51 987654321">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Consulta / Mensaje</label>
+                    <textarea id="webMessage" class="form-control" rows="3" placeholder="Hola, quisiera consultar los horarios de Marinera Norteña para niñas de 7 años..."></textarea>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-lg full-width">
+                    <i class="fa-solid fa-paper-plane"></i> Enviar Consulta a CRM
+                  </button>
+                </form>
+
+                <div id="webLeadResultBox" class="web-result-box hidden"></div>
+              </div>
+            </div>
+
+            <!-- Real-time Live Log of Ingested Leads -->
+            <div class="card log-card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-bolt"></i> Registro en Tiempo Real del CRM</h3>
+                <span class="card-subtitle">Comprueba cómo ingresa el lead automáticamente al CRM</span>
+              </div>
+              <div class="card-body" id="webLiveLogFeed">
+                <div class="log-placeholder text-muted">Los leads enviados desde el formulario web aparecerán aquí al instante...</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. DATABASE BACKUP & CLIENT IMPORT VIEW -->
+        <section id="view-backup" class="app-view">
+          <div class="backup-grid">
+            
+            <!-- Card 1: Bulk CSV Clients Import & Export -->
+            <div class="card backup-card">
+              <div class="card-header bg-gradient">
+                <h3><i class="fa-solid fa-file-excel"></i> Importar / Exportar Clientes (Excel & CSV)</h3>
+                <span class="card-subtitle">Carga masiva de alumnos existentes al CRM o exportación a Excel</span>
+              </div>
+              <div class="card-body">
+                <p class="text-sm text-muted mb-3">
+                  Si ya tienes una lista de alumnos en Excel o en otra base de datos, puedes importarla directamente para que aparezcan en el CRM con todos sus datos y apoderados.
+                </p>
+
+                <div class="backup-actions-box mb-4">
+                  <div class="flex-between mb-2">
+                    <span class="fw-bold">1. Plantilla de Importación</span>
+                    <a href="/backup/template-clients-csv" download="plantilla_clientes_garbo_y_salero.csv" class="btn btn-outline btn-sm">
+                      <i class="fa-solid fa-download"></i> Descargar Plantilla CSV
+                    </a>
+                  </div>
+                  <p class="text-xs text-muted">Descarga este archivo de ejemplo, llénalo con tus clientes y súbelo a continuación.</p>
+                </div>
+
+                <form id="importClientsCsvForm" class="file-upload-form">
+                  <div class="form-group">
+                    <label class="fw-bold">2. Selecciona tu archivo CSV / Excel</label>
+                    <div class="file-dropzone" id="csvDropzone">
+                      <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                      <span class="dropzone-text" id="csvDropzoneText">Haz clic o arrastra tu archivo .csv aquí</span>
+                      <input type="file" id="csvFileInput" accept=".csv,text/csv" class="file-input-hidden">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary full-width" id="btnSubmitImportCsv">
+                    <i class="fa-solid fa-upload"></i> Cargar e Importar Alumnos al CRM
+                  </button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="flex-between">
+                  <div>
+                    <h4 class="h6 mb-1"><i class="fa-solid fa-file-export"></i> Descargar Clientes Actuales</h4>
+                    <span class="text-xs text-muted">Exporta todos los alumnos y apoderados registrados</span>
+                  </div>
+                  <a href="/backup/export-clients-csv" download="clientes_garbo_y_salero.csv" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-download"></i> Exportar a Excel (CSV)
+                  </a>
+                </div>
+
+                <div id="importCsvResultBox" class="result-alert-box mt-3 hidden"></div>
+              </div>
+            </div>
+
+            <!-- Card 2: Full Database JSON Backup & Restore -->
+            <div class="card backup-card">
+              <div class="card-header bg-navy">
+                <h3><i class="fa-solid fa-database"></i> Copia de Seguridad Completa (JSON)</h3>
+                <span class="card-subtitle">Respaldo total de tablas, pagos, asistencias, promociones y usuarios</span>
+              </div>
+              <div class="card-body">
+                <p class="text-sm text-muted mb-3">
+                  Exporta una copia de seguridad íntegra de todo el sistema en un solo archivo para transferir el CRM o guardarlo de respaldo seguro.
+                </p>
+
+                <div class="backup-actions-box mb-4">
+                  <div class="flex-between mb-2">
+                    <span class="fw-bold">Exportar Respaldo Completo</span>
+                    <a href="/backup/export-full" download class="btn btn-primary btn-sm" id="btnDownloadFullBackup">
+                      <i class="fa-solid fa-download"></i> Descargar Backup (.JSON)
+                    </a>
+                  </div>
+                  <span class="text-xs text-muted">Incluye alumnos, apoderados, interacciones, mensualidades, pagos y auditoría.</span>
+                </div>
+
+                <form id="importFullJsonForm" class="file-upload-form">
+                  <div class="form-group">
+                    <label class="fw-bold">Restaurar Base de Datos desde Archivo JSON</label>
+                    <div class="file-dropzone" id="jsonDropzone">
+                      <i class="fa-solid fa-file-code dropzone-icon"></i>
+                      <span class="dropzone-text" id="jsonDropzoneText">Selecciona o arrastra el archivo .json de respaldo</span>
+                      <input type="file" id="jsonFileInput" accept=".json,application/json" class="file-input-hidden">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-warning full-width" id="btnSubmitImportJson">
+                    <i class="fa-solid fa-rotate-left"></i> Restaurar / Cargar Base de Datos
+                  </button>
+                </form>
+
+                <div id="importJsonResultBox" class="result-alert-box mt-3 hidden"></div>
+              </div>
+            </div>
+
+            <!-- Card 3: Guide of Supported Columns -->
+            <div class="card backup-card full-width">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-circle-info"></i> Columnas Compatibles para Carga de Clientes</h3>
+                <span class="card-subtitle">El sistema detecta automáticamente los siguientes encabezados en tu Excel/CSV:</span>
+              </div>
+              <div class="card-body table-responsive">
+                <table class="table table-compact">
+                  <thead>
+                    <tr>
+                      <th>Columna</th>
+                      <th>Obligatorio</th>
+                      <th>Ejemplo</th>
+                      <th>Descripción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>Nombres</code></td><td><span class="badge badge-danger">Sí</span></td><td>Valeria</td><td>Nombres del alumno</td></tr>
+                    <tr><td><code>Apellidos</code></td><td>No</td><td>Mendoza Vega</td><td>Apellidos del alumno</td></tr>
+                    <tr><td><code>DNI</code></td><td>No</td><td>72345678</td><td>DNI peruano (8 dígitos)</td></tr>
+                    <tr><td><code>WhatsApp / Telefono</code></td><td>No</td><td>+51 987654321</td><td>Número directo para mensajes</td></tr>
+                    <tr><td><code>Anio_Nacimiento</code></td><td>No</td><td>2016</td><td>Año o edad (si &lt;18 se marca como menor)</td></tr>
+                    <tr><td><code>Es_Menor</code></td><td>No</td><td>SI / NO</td><td>Identifica si requiere apoderado</td></tr>
+                    <tr><td><code>Nombre_Apoderado</code></td><td>No</td><td>Rosa Quispe</td><td>Nombre del padre/madre/tutor (75% menores)</td></tr>
+                    <tr><td><code>Telefono_Apoderado</code></td><td>No</td><td>+51 987654321</td><td>Contacto para grupos de WhatsApp de la sede</td></tr>
+                    <tr><td><code>Sede_Preferida</code></td><td>No</td><td>Los Olivos / Comas</td><td>Local donde asiste el alumno</td></tr>
+                    <tr><td><code>Estado</code></td><td>No</td><td>active / interested</td><td>Estado (activo, interesado, retirado)</td></tr>
+                    <tr><td><code>Origen_Captacion</code></td><td>No</td><td>whatsapp / instagram</td><td>Canal por donde contactó</td></tr>
+                    <tr><td><code>Referido_Por_Nombre</code></td><td>No</td><td>Carmen Torres</td><td>Quién recomendó al alumno</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Client 360 Profile & Timeline Modal -->
+  <div class="modal-overlay" id="clientProfileModal">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-navy">
+          <div class="modal-profile-header">
+            <div class="avatar-lg" id="profileAvatar"><i class="fa-solid fa-user"></i></div>
+            <div>
+              <h2 id="profileClientName">Nombre del Alumno</h2>
+              <span id="profileClientMeta" class="modal-subtitle">DNI: - | Sede: Los Olivos | Estado: Activo</span>
+            </div>
+          </div>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body modal-profile-body">
+          <!-- Left: Information Summary -->
+          <div class="profile-summary-col">
+            <div class="profile-card">
+              <h4><i class="fa-solid fa-address-card"></i> Ficha del Alumno</h4>
+              <ul class="profile-info-list" id="profileInfoList"></ul>
+            </div>
+
+            <!-- WhatsApp Action Direct Trigger -->
+            <div class="profile-card whatsapp-card">
+              <h4><i class="fa-brands fa-whatsapp"></i> Contacto Directo WhatsApp</h4>
+              <p class="text-sm">Envía recordatorios de horarios, confirmación de pagos o grupos de WhatsApp con un clic.</p>
+              <div class="form-group">
+                <select id="profileWspTemplateSelect" class="form-select form-select-sm">
+                  <option value="recordatorio_pago">Aviso de vencimiento de mensualidad</option>
+                  <option value="bienvenida">Bienvenida y grupo de WhatsApp</option>
+                  <option value="clase_prueba">Confirmación de clase de prueba</option>
+                  <option value="seguimiento">Seguimiento a interesado</option>
+                </select>
+              </div>
+              <a id="btnSendWspMessage" href="#" target="_blank" class="btn btn-whatsapp full-width">
+                <i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp Web
+              </a>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="profile-quick-actions">
+              <button class="btn btn-secondary btn-sm full-width mb-2" id="btnProfileAddInteraction">
+                <i class="fa-solid fa-plus"></i> Añadir Interacción
+              </button>
+              <button class="btn btn-secondary btn-sm full-width mb-2" id="btnProfileAddPayment">
+                <i class="fa-solid fa-cash-register"></i> Registrar Pago
+              </button>
+              <button class="btn btn-secondary btn-sm full-width mb-2" id="btnProfileApplyDiscount">
+                <i class="fa-solid fa-percent"></i> Aplicar Descuento
+              </button>
+              <button class="btn btn-outline-danger btn-sm full-width mb-2" id="btnProfileRetireClient">
+                <i class="fa-solid fa-user-minus"></i> Dar de Baja / Retirar
+              </button>
+              <button class="btn btn-outline-success btn-sm full-width mb-2 hidden" id="btnProfileReactivateClient">
+                <i class="fa-solid fa-user-plus"></i> Reactivar Alumno
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: 360 Timeline (Section 3.7) -->
+          <div class="profile-timeline-col">
+            <div class="card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-timeline"></i> Línea de Tiempo 360°</h3>
+                <span class="card-subtitle">Historial de contactos, asistencias, pagos y promociones</span>
+              </div>
+              <div class="card-body">
+                <div class="timeline-container" id="profileTimelineContainer">
+                  <div class="text-center text-muted">Cargando línea de tiempo...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Client Creation / Edit Modal -->
+  <div class="modal-overlay" id="clientFormModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="clientModalTitle"><i class="fa-solid fa-user-plus"></i> Registro de Alumno / Cliente</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="clientForm">
+          <input type="hidden" id="formClientId">
+          <div class="modal-body">
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Nombres *</label>
+                <input type="text" id="clientFirstName" class="form-control" required placeholder="Ej: Lucía">
+              </div>
+              <div class="form-group col-6">
+                <label>Apellidos *</label>
+                <input type="text" id="clientLastName" class="form-control" required placeholder="Ej: García Torres">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label>DNI (8 dígitos)</label>
+                <input type="text" id="clientDni" class="form-control" pattern="^\d{8}$" placeholder="Ej: 71234567">
+              </div>
+              <div class="form-group col-4">
+                <label>WhatsApp</label>
+                <input type="tel" id="clientWhatsapp" class="form-control" placeholder="+51 987654321">
+              </div>
+              <div class="form-group col-4">
+                <label>Teléfono Fijo / Alternativo</label>
+                <input type="tel" id="clientPhone" class="form-control" placeholder="+51 987654321">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label>Año de Nacimiento</label>
+                <input type="number" id="clientBirthYear" class="form-control" min="1930" max="2026" placeholder="Ej: 2015">
+              </div>
+              <div class="form-group col-4">
+                <label>Sede Preferida *</label>
+                <select id="clientPreferredBranch" class="form-select" required>
+                  <option value="Los Olivos">Los Olivos</option>
+                  <option value="Comas">Comas</option>
+                </select>
+              </div>
+              <div class="form-group col-4">
+                <label>Estado Inicial *</label>
+                <select id="clientStatus" class="form-select" required>
+                  <option value="interested">Interesado (Prospecto)</option>
+                  <option value="active">Activo (Matriculado)</option>
+                  <option value="retired">Retirado</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Minor / Guardian Section (75% of clientele) -->
+            <div class="guardian-section">
+              <div class="checkbox-wrapper mb-3">
+                <input type="checkbox" id="clientIsMinor">
+                <label for="clientIsMinor"><strong>¿Es menor de edad? (Registrar Apoderado para Grupos de WhatsApp)</strong></label>
+              </div>
+
+              <div id="guardianFieldsContainer" class="guardian-fields hidden">
+                <div class="form-row">
+                  <div class="form-group col-6">
+                    <label>Nombre del Apoderado (Padre / Madre / Tutor)</label>
+                    <input type="text" id="clientGuardianName" class="form-control" placeholder="Ej: Carmen Torres">
+                  </div>
+                  <div class="form-group col-6">
+                    <label>Teléfono / WhatsApp del Apoderado *</label>
+                    <input type="tel" id="clientGuardianPhone" class="form-control" placeholder="+51 999888777">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-6">
+                    <label>Parentesco</label>
+                    <select id="clientGuardianRelationship" class="form-select">
+                      <option value="Madre">Madre</option>
+                      <option value="Padre">Padre</option>
+                      <option value="Tutor">Tutor / Familiar</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label>DNI del Apoderado</label>
+                    <input type="text" id="clientGuardianDni" class="form-control" pattern="^\d{8}$" placeholder="Ej: 09876543">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acquisition Source & Referrals (Section 2.5 & 2.6) -->
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>¿Cómo llegó al estudio? *</label>
+                <select id="clientAcquisitionSource" class="form-select" required>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="presencial">Presencial / Local</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="tiktok">Tik Tok</option>
+                  <option value="referral">Referido / Recomendación</option>
+                  <option value="web">Página Web</option>
+                  <option value="other">Otro</option>
+                </select>
+              </div>
+              <div class="form-group col-6" id="uninterestedReasonWrapper">
+                <label>Motivo de no inscripción (si aplica)</label>
+                <select id="clientUninterestedReason" class="form-select">
+                  <option value="">-- Ninguno --</option>
+                  <option value="precio">Precio / Presupuesto</option>
+                  <option value="horario">Cruce de Horarios</option>
+                  <option value="ubicacion">Distancia / Ubicación</option>
+                  <option value="lo_pensara">Lo consultará en familia</option>
+                  <option value="otro">Otro motivo</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Referral Fields -->
+            <div id="referralFieldsContainer" class="referral-box hidden">
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label>Nombre de quién recomendó *</label>
+                  <input type="text" id="clientReferrerName" class="form-control" placeholder="Ej: Juan Pérez">
+                </div>
+                <div class="form-group col-6">
+                  <label>Número de contacto de quién recomendó *</label>
+                  <input type="tel" id="clientReferrerPhone" class="form-control" placeholder="+51 987654321">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Observaciones / Notas Adicionales</label>
+              <textarea id="clientNotes" class="form-control" rows="2" placeholder="Turnos de preferencia, antecedentes de danza, etc."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="btnSaveClient">Guardar Alumno</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. New Interaction Modal -->
+  <div class="modal-overlay" id="interactionModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-headset"></i> Registrar Interacción / Contacto</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="interactionForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Cliente / Alumno *</label>
+              <select id="interactionClientId" class="form-select" required></select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Canal *</label>
+                <select id="interactionChannel" class="form-select" required>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="presencial">Presencial (Vino al local)</option>
+                  <option value="llamada">Llamada telefónica</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="tiktok">Tik Tok</option>
+                  <option value="web">Web</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label>Motivo *</label>
+                <select id="interactionMotive" class="form-select" required>
+                  <option value="precios_y_horarios">Preguntó precios y horarios</option>
+                  <option value="visita_local">Vino al local a conocer</option>
+                  <option value="clase_prueba">Vino a clase de prueba</option>
+                  <option value="particulares">Preguntó por particulares</option>
+                  <option value="seguimiento">Seguimiento / Recordatorio</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Resumen de lo Conversado (Turnos, horarios, precios informados) *</label>
+              <textarea id="interactionSummary" class="form-control" rows="3" required placeholder="Ej: Consultó por marinera infantil sábados. Se enviaron horarios de 4 a 6pm y precio S/ 150..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Resultado *</label>
+                <select id="interactionResult" class="form-select" required>
+                  <option value="pidio_informacion">Pidió información</option>
+                  <option value="vino_a_probarse">Vino a probarse</option>
+                  <option value="se_inscribio">Se inscribió / Pagó</option>
+                  <option value="lo_pensara">Lo pensará</option>
+                  <option value="no_respondio">No respondió</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label>Quién Atendió *</label>
+                <input type="text" id="interactionAttendedBy" class="form-control" required value="Directora General">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Fecha Próximo Contacto</label>
+                <input type="datetime-local" id="interactionFollowupDate" class="form-control">
+              </div>
+              <div class="form-group col-6">
+                <label>Motivo si no se inscribió</label>
+                <select id="interactionUninterestedReason" class="form-select">
+                  <option value="">-- No aplica --</option>
+                  <option value="precio">Precio</option>
+                  <option value="horario">Horario</option>
+                  <option value="ubicacion">Ubicación</option>
+                  <option value="lo_pensara">Lo pensará</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Interacción</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Payment Creation Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-cash-register"></i> Registrar Cobro / Pago</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="paymentForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Alumno / Cliente *</label>
+              <select id="paymentClientId" class="form-select" required></select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Concepto *</label>
+                <select id="paymentConcept" class="form-select" required>
+                  <option value="mensualidad">Mensualidad (8 clases)</option>
+                  <option value="matricula">Matrícula</option>
+                  <option value="clase_libre">Clase Libre</option>
+                  <option value="paquete_particular">Paquete Clases Particulares</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label>Monto a Cobrar (S/) *</label>
+                <input type="number" step="0.50" id="paymentAmount" class="form-control" required placeholder="Ej: 150.00">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Método de Pago *</label>
+                <select id="paymentMethod" class="form-select" required>
+                  <option value="yape">Yape</option>
+                  <option value="plin">Plin</option>
+                  <option value="transferencia">Transferencia Bancaria</option>
+                  <option value="efectivo">Efectivo</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label>Periodo (Mes Correspondiente) *</label>
+                <input type="month" id="paymentPeriodMonth" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>N° Operación / Referencia</label>
+                <input type="text" id="paymentRef" class="form-control" placeholder="Ej: Op. 458921">
+              </div>
+              <div class="form-group col-6">
+                <label>Sede de Cobro *</label>
+                <select id="paymentBranch" class="form-select" required>
+                  <option value="Los Olivos">Los Olivos</option>
+                  <option value="Comas">Comas</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Turno / Horario Asignado</label>
+              <input type="text" id="paymentShiftDetail" class="form-control" placeholder="Ej: Lunes y Miércoles 7-8pm">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-primary">Emitir Recibo & Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Payment Cancellation Modal (Section 6.5) -->
+  <div class="modal-overlay" id="cancelPaymentModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h3><i class="fa-solid fa-triangle-exclamation"></i> Anulación / Devolución de Pago</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="cancelPaymentForm">
+          <input type="hidden" id="cancelPaymentId">
+          <div class="modal-body">
+            <p class="alert alert-warning">
+              <strong>Atención:</strong> Esta acción anulará el comprobante de pago y revertirá el estado de la membresía. Requiere autorización de la Administración General.
+            </p>
+            <div class="form-group">
+              <label>Motivo de la Anulación / Devolución *</label>
+              <textarea id="cancelReason" class="form-control" rows="3" required placeholder="Detalle el motivo específico de la anulación..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Autorizado Por (Admin General) *</label>
+              <input type="text" id="cancelAuthorizedBy" class="form-control" required value="Directora General">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal>Volver</button>
+            <button type="submit" class="btn btn-danger">Confirmar Anulación</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Payment Receipt Modal (Emisión y Visualización de Recibos Oficiales) -->
+  <div class="modal-overlay" id="receiptModal">
+    <div class="modal-dialog modal-receipt">
+      <div class="modal-content receipt-content">
+        
+        <!-- ================================================================
+             MEMBRETE INSTITUCIONAL DEL RECIBO
+             - logo-trimmed.png: Logotipo completo (monograma + caligrafía + subtítulo)
+               adecuado para fondos blancos/impresos.
+             - Datos formales de la academia para validez ante padres y apoderados.
+             ================================================================ -->
+        <div class="receipt-header">
+          <img src="/static/assets/logo-trimmed.png" alt="Taller de Marinera Garbo & Salero" class="receipt-logo-img">
+          <h2>Taller de Marinera Garbo & Salero</h2>
+          <p>Semillero de Campeones — Sedes Los Olivos & Comas</p>
+          <span class="receipt-type">COMPROBANTE OFICIAL DE PAGO</span>
+        </div>
+        <div class="receipt-body" id="receiptBody">
+          <!-- Filled dynamically via app.js (viewReceipt) -->
+        </div>
+        <div class="receipt-footer">
+          <button class="btn btn-secondary btn-sm" data-close-modal>Cerrar</button>
+          <button class="btn btn-whatsapp btn-sm" id="btnShareWspReceipt"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+          <button class="btn btn-primary btn-sm" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Membership Creation Modal -->
+  <div class="modal-overlay" id="membershipModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-id-card"></i> Asignar Membresía / Plan Mensual</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="membershipForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Alumno / Cliente *</label>
+              <select id="membershipClientId" class="form-select" required></select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Modalidad *</label>
+                <select id="membershipClassType" class="form-select" required>
+                  <option value="grupal_mensual">Grupal Mensual (8 clases)</option>
+                  <option value="clase_libre">Clase Libre Suelta</option>
+                  <option value="particular_paquete">Paquete Particular</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label>Sede *</label>
+                <select id="membershipBranch" class="form-select" required>
+                  <option value="Los Olivos">Los Olivos</option>
+                  <option value="Comas">Comas</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Nombre del Plan *</label>
+              <input type="text" id="membershipPlanName" class="form-control" required value="Marinera Norteña Mensual (8 clases)">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label>Periodo (Mes) *</label>
+                <input type="month" id="membershipPeriodMonth" class="form-control" required>
+              </div>
+              <div class="form-group col-4">
+                <label>Fecha Inicio *</label>
+                <input type="date" id="membershipStartDate" class="form-control" required>
+              </div>
+              <div class="form-group col-4">
+                <label>Fecha Fin / Vence *</label>
+                <input type="date" id="membershipEndDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label>Precio Base (S/) *</label>
+                <input type="number" step="0.50" id="membershipPrice" class="form-control" required value="150.00">
+              </div>
+              <div class="form-group col-4">
+                <label>Descuento (S/)</label>
+                <input type="number" step="0.50" id="membershipDiscount" class="form-control" value="0.00">
+              </div>
+              <div class="form-group col-4">
+                <label>Estado de Pago</label>
+                <select id="membershipPaymentStatus" class="form-select">
+                  <option value="paid">Pagado</option>
+                  <option value="pending">Pendiente</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-primary">Asignar Membresía</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Apply Discount Modal -->
+  <div class="modal-overlay" id="discountModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-percent"></i> Aplicar Promoción o Descuento</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="discountForm">
+          <input type="hidden" id="discountClientId">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Seleccionar Promoción del Catálogo</label>
+              <select id="discountPromotionSelect" class="form-select">
+                <option value="">-- Descuento Manual / Personalizado --</option>
+              </select>
+            </div>
+
+            <div id="manualDiscountFields">
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label>Nombre del Descuento *</label>
+                  <input type="text" id="discountName" class="form-control" placeholder="Ej: Descuento S/ 20 por recomendación">
+                </div>
+                <div class="form-group col-6">
+                  <label>Tipo *</label>
+                  <select id="discountType" class="form-select">
+                    <option value="fixed_amount">Monto Fijo (Soles)</option>
+                    <option value="percentage">Porcentaje (%)</option>
+                    <option value="enrollment_fee_waiver">Exoneración de Matrícula</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Valor del Descuento</label>
+                <input type="number" step="0.50" id="discountValue" class="form-control" value="20.00">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Motivo de la Aplicación *</label>
+              <textarea id="discountReason" class="form-control" rows="2" required placeholder="Ej: Trajo a su prima María como alumna referida..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Autorizado Por (Administrador) *</label>
+              <input type="text" id="discountAppliedBy" class="form-control" required value="Directora General">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-primary">Aplicar Descuento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Schedule Class Session Modal -->
+  <div class="modal-overlay" id="classModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-calendar-plus"></i> Programar Clase / Horario</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="classForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Nombre de la Clase *</label>
+              <input type="text" id="className" class="form-control" required placeholder="Ej: Marinera Norteña Infantil Inicial">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Modalidad *</label>
+                <select id="classType" class="form-select" required>
+                  <option value="group">Grupal (8 clases al mes)</option>
+                  <option value="free">Clase Libre</option>
+                  <option value="private">Clase Particular</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label>Sede *</label>
+                <select id="classBranch" class="form-select" required>
+                  <option value="Los Olivos">Los Olivos</option>
+                  <option value="Comas">Comas</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Nivel</label>
+                <select id="classLevel" class="form-select">
+                  <option value="inicial">Inicial / Semillero</option>
+                  <option value="intermedio">Intermedio</option>
+                  <option value="avanzado">Avanzado</option>
+                  <option value="campeones">Campeones / Concurso</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label>Grupo de Edad</label>
+                <select id="classAgeGroup" class="form-select">
+                  <option value="infantil">Infantil (4 - 11 años)</option>
+                  <option value="juvenil">Juvenil (12 - 17 años)</option>
+                  <option value="adultos">Adultos (18+ años)</option>
+                  <option value="todas las edades">Todas las edades</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Fecha y Hora Inicio *</label>
+                <input type="datetime-local" id="classStartsAt" class="form-control" required>
+              </div>
+              <div class="form-group col-6">
+                <label>Fecha y Hora Fin</label>
+                <input type="datetime-local" id="classEndsAt" class="form-control">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Aforo Máximo (Capacidad) *</label>
+                <input type="number" id="classCapacity" class="form-control" required value="15" min="1" max="50">
+              </div>
+              <div class="form-group col-6">
+                <label>Profesor / Instructor</label>
+                <input type="text" id="classInstructor" class="form-control" placeholder="Ej: Prof. Carlos Mendoza">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Turno / Días Habituales</label>
+              <input type="text" id="classShiftTime" class="form-control" placeholder="Ej: Lunes y Miércoles 6:00 - 7:30 PM">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Horario</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  <!-- 9. Modal: Retire Client / Student Withdrawal -->
+  <div class="modal-overlay" id="modalRetireClient">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h3><i class="fa-solid fa-user-minus"></i> Registrar Baja / Retiro de Alumno</h3>
+          <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="retireClientForm">
+          <input type="hidden" id="retireClientId">
+          <div class="modal-body">
+            <div class="result-alert-box alert-danger mb-3">
+              <p class="mb-1"><strong>Alumno(a):</strong> <span id="retireClientNameDisplay" class="fw-bold">-</span></p>
+              <span class="text-xs">Al registrar el retiro, el alumno pasará a estado <strong>Retirado</strong>. Sus cuotas o membresías pendientes del ciclo actual serán canceladas y se detendrán las renovaciones mensuales automáticas.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="fw-bold">Motivo Principal del Retiro (Obligatorio) *</label>
+              <select id="retireReasonSelect" class="form-select" required>
+                <option value="">-- Selecciona el motivo del listado --</option>
+                <option value="cruce_horarios">⏰ Cruce de Horarios (Colegio / Universidad / Trabajo)</option>
+                <option value="economico_precio">💰 Precio / Situación Económica</option>
+                <option value="distancia_mudanza">📍 Distancia / Cambio de Domicilio</option>
+                <option value="salud_lesion">🏥 Salud o Lesión</option>
+                <option value="viaje_temporal">✈️ Viaje o Ausencia Temporal</option>
+                <option value="fin_temporada">🎓 Culminó Temporada / Vacaciones</option>
+                <option value="insatisfaccion">⚠️ Insatisfacción con la Clase o Servicio</option>
+                <option value="personal_familiar">👨‍👩‍👧 Motivos Personales / Familiares</option>
+                <option value="otro">📝 Otro Motivo</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Observaciones / Detalle Adicional</label>
+              <textarea id="retireNotes" class="form-control" rows="3" placeholder="Ej: La madre comunicó que por cruce de horarios con el colegio no podrá continuar este mes..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-danger" id="btnSubmitRetireClient">
+              <i class="fa-solid fa-user-xmark"></i> Confirmar Retiro del Alumno
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Main JavaScript Bundle -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
